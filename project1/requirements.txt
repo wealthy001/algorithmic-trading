@@ -1,1 +1,5 @@
 Django
+pandas
+massive
+python-decouple
+snaptrade-python-sdk

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -117,6 +118,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.1/howto/static-files/
 
 STATIC_URL = 'static/'
+
+MASSIVE_API_KEY = config('MASSIVE_API_KEY', default='')
+SNAPTRADE_CLIENT_SECRET = config('SNAPTRADE_CLIENT_SECRET', default='')
+SNAPTRADE_CLIENT_ID = config('SNAPTRADE_CLIENT_ID', default='')
+MOMENTUM_LOOKBACK_MONTHS = 12
+MOMENTUM_SKIP_MONTHS = 1
 
 
 # Email
