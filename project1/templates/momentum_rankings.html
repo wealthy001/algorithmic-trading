@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Momentum Rankings | Momentum Trader{% endblock %}
+{% block page_title %}Momentum Rankings{% endblock %}
+
+{% block content %}
+<section class="panel">
+  <div class="panel-header">
+    <h2>Top 50 Momentum Stocks</h2>
+    <form method="post" action="{% url 'trading:momentum_rankings' %}">
+      {% csrf_token %}
+      <button type="submit" class="primary-button">Calculate Momentum</button>
+    </form>
+  </div>
+
+  {% if message %}
+  <div class="form-error" style="margin-bottom: 16px;">{{ message }}</div>
+  {% endif %}
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Ticker</th>
+          <th>Name</th>
+          <th>Momentum</th>
+          <th>Quintile</th>
+          <th>Signal</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for score in rankings %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td><a href="{% url 'trading:stock_detail' score.stock.ticker %}" class="stock-link">{{ score.stock.ticker }}</a></td>
+          <td>{{ score.stock.name|default:score.stock.ticker }}</td>
+          <td>{{ score.momentum_score|floatformat:6 }}</td>
+          <td>{{ score.quintile|default:'N/A' }}</td>
+          <td>
+            {% if score.is_top_quintile %}
+              <span class="signal-badge signal-buy">BUY</span>
+            {% else %}
+              <span class="signal-badge signal-hold">WATCH</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" class="empty-row">No momentum scores available. Run the calculation to populate rankings.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

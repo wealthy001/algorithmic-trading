@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}Generate Signals | Momentum Trader{% endblock %}
+{% block page_title %}Signal Generation{% endblock %}
+
+{% block content %}
+<section class="panel">
+  <div class="panel-header">
+    <h2>Generate Strategy Signals</h2>
+    <a href="{% url 'trading:signal_list' %}" class="text-link">View signals</a>
+  </div>
+
+  {% if error %}
+  <div class="form-error">{{ error }}</div>
+  {% endif %}
+
+  <form method="post" class="signal-form">
+    {% csrf_token %}
+    <div class="field">
+      <label for="portfolio_id">Portfolio</label>
+      <select id="portfolio_id" name="portfolio_id">
+        {% for item in portfolios %}
+        <option value="{{ item.pk }}" {% if portfolio and item.pk == portfolio.pk %}selected{% endif %}>{{ item.name }}</option>
+        {% empty %}
+        <option value="">No portfolios available</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="button-row">
+      <button type="submit" class="primary-button">Generate signals</button>
+      <button type="submit" name="execute_signals" value="1" class="secondary-button">Generate + buy signals</button>
+    </div>
+  </form>
+</section>
+
+{% if generated_at %}
+<section class="panel">
+  <div class="panel-header">
+    <h2>Signals for {{ portfolio.name }}</h2>
+  </div>
+
+  {% if buy_signals or sell_signals %}
+  <div class="content-grid two-col">
+    <div>
+      <h3>Buy signals</h3>
+      <div class="signal-list">
+        {% for signal in buy_signals %}
+        <div class="signal-item">
+          <div>
+            <strong>{{ signal.stock.ticker }}</strong>
+            <p>{{ signal.reason|default:'Top-quintile momentum pick' }}</p>
+          </div>
+          <span class="signal-badge signal-buy">BUY</span>
+        </div>
+        {% empty %}
+        <p class="empty-state">No buy signals generated.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div>
+      <h3>Sell signals</h3>
+      <div class="signal-list">
+        {% for signal in sell_signals %}
+        <div class="signal-item">
+          <div>
+            <strong>{{ signal.stock.ticker }}</strong>
+            <p>{{ signal.reason|default:'Bottom-quintile risk signal' }}</p>
+          </div>
+          <span class="signal-badge signal-sell">SELL</span>
+        </div>
+        {% empty %}
+        <p class="empty-state">No sell signals generated.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <p class="empty-state">No new signals were produced for this portfolio at {{ generated_at|date:'M d, Y H:i' }}.</p>
+  {% endif %}
+</section>
+{% endif %}
+{% endblock %}

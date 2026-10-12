@@ -1,0 +1,70 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Momentum Trader{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">MT</div>
+          <div>
+            <strong>Momentum</strong>
+            <span>Trader</span>
+          </div>
+        </div>
+
+        <nav class="nav">
+          <a href="{% url 'portfolio:dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+            Dashboard
+          </a>
+          <a href="{% url 'portfolio:portfolio_list' %}" class="nav-link {% if request.resolver_match.url_name == 'portfolio_list' or request.resolver_match.url_name == 'portfolio_create' or request.resolver_match.url_name == 'portfolio_detail' or request.resolver_match.url_name == 'portfolio_generate_signals' %}active{% endif %}">
+            Portfolios
+          </a>
+          <a href="{% url 'trading:generate_signals' %}" class="nav-link {% if request.resolver_match.url_name == 'generate_signals' %}active{% endif %}">
+            Generate Signals
+          </a>
+          <a href="{% url 'trading:market_overview' %}" class="nav-link {% if request.resolver_match.url_name == 'market_overview' or request.resolver_match.url_name == 'signal_list' or request.resolver_match.url_name == 'stock_list' or request.resolver_match.url_name == 'stock_detail' or request.resolver_match.url_name == 'rebalance_history' or request.resolver_match.url_name == 'strategy_dashboard' %}active{% endif %}">
+            Market Overview
+          </a>
+          <a href="{% url 'trading:stock_list' %}" class="nav-link {% if request.resolver_match.url_name == 'stock_list' or request.resolver_match.url_name == 'stock_detail' %}active{% endif %}">
+            Stocks
+          </a>
+          <a href="{% url 'trading:signal_list' %}" class="nav-link {% if request.resolver_match.url_name == 'signal_list' %}active{% endif %}">
+            Signals
+          </a>
+          <a href="{% url 'trading:momentum_rankings' %}" class="nav-link {% if request.resolver_match.url_name == 'momentum_rankings' %}active{% endif %}">
+            Momentum
+          </a>
+          <a href="{% url 'trading:rebalance_history' %}" class="nav-link {% if request.resolver_match.url_name == 'rebalance_history' %}active{% endif %}">
+            Rebalances
+          </a>
+          <a href="{% url 'trading:strategy_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'strategy_dashboard' %}active{% endif %}">
+            Strategy
+          </a>
+        </nav>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Algorithmic Trading Workspace</p>
+            <h1>{% block page_title %}Overview{% endblock %}</h1>
+          </div>
+          <div class="topbar-actions">
+            <span class="status-pill">Live</span>
+          </div>
+        </header>
+
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </body>
+</html>

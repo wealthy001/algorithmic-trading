@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ stock.ticker }} | Momentum Trader{% endblock %}
+{% block page_title %}{{ stock.ticker }}{% endblock %}
+
+{% block content %}
+<div class="summary-row">
+  <span class="summary-pill">Sector: {{ stock.sector|default:'N/A' }}</span>
+  <span class="summary-pill">Market cap: {{ stock.market_cap|default:'N/A' }}</span>
+  <span class="summary-pill">Status: {% if stock.is_active %}Active{% else %}Inactive{% endif %}</span>
+</div>
+
+<div class="content-grid two-col">
+  <section class="panel">
+    <div class="panel-header">
+      <h2>Recent Price History</h2>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Open</th>
+            <th>Close</th>
+            <th>High</th>
+            <th>Low</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for price in price_history %}
+          <tr>
+            <td>{{ price.date }}</td>
+            <td>${{ price.open_price|floatformat:2 }}</td>
+            <td>${{ price.close|floatformat:2 }}</td>
+            <td>${{ price.high|floatformat:2 }}</td>
+            <td>${{ price.low|floatformat:2 }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" class="empty-row">No price data available for this stock.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-header">
+      <h2>Momentum History</h2>
+    </div>
+    <div class="signal-list">
+      {% for score in momentum_history %}
+      <div class="signal-item">
+        <div>
+          <strong>{{ score.calculation_date }}</strong>
+          <p>Rank: {{ score.rank|default:'N/A' }} · Quintile: {{ score.quintile|default:'N/A' }}</p>
+        </div>
+        <span class="signal-badge {% if score.is_top_quintile %}signal-buy{% else %}signal-hold{% endif %}">
+          {{ score.momentum_score|floatformat:6 }}
+        </span>
+      </div>
+      {% empty %}
+      <p class="empty-state">No momentum scores are available for this stock yet.</p>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+
+<section class="panel">
+  <div class="panel-header">
+    <h2>Recent Signals</h2>
+  </div>
+  <div class="signal-list">
+    {% for signal in recent_signals %}
+    <div class="signal-item">
+      <div>
+        <strong>{{ signal.signal_type }}</strong>
+        <p>{{ signal.signal_date }} · {{ signal.reason|default:'No reason provided' }}</p>
+      </div>
+      <span class="signal-badge signal-{{ signal.signal_type|lower }}">{{ signal.signal_type }}</span>
+    </div>
+    {% empty %}
+    <p class="empty-state">This stock has no trading signals recorded.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

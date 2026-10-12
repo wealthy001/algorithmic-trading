@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ portfolio.name }} | Momentum Trader{% endblock %}
+{% block page_title %}{{ portfolio.name }}{% endblock %}
+
+{% block content %}
+<div class="page-actions">
+  <form method="post" action="{% url 'portfolio:portfolio_connect_alpaca' portfolio.pk %}">
+    {% csrf_token %}
+    <button type="submit" class="primary-button">
+      {% if portfolio.snaptrade_account_id %}Reconnect Alpaca{% else %}Connect Alpaca via SnapTrade{% endif %}
+    </button>
+  </form>
+  <form method="post" action="{% url 'portfolio:portfolio_generate_signals' portfolio.pk %}">
+    {% csrf_token %}
+    <button type="submit" class="secondary-button">Generate signals</button>
+  </form>
+  <form method="post" action="{% url 'portfolio:portfolio_generate_signals' portfolio.pk %}">
+    {% csrf_token %}
+    <input type="hidden" name="execute_signals" value="1">
+    <button type="submit" class="primary-button">Generate &amp; buy signals</button>
+  </form>
+  <a href="{% url 'portfolio:portfolio_list' %}" class="secondary-button">Back to portfolios</a>
+</div>
+
+{% if error %}
+<div class="form-error">{{ error }}</div>
+{% endif %}
+
+<div class="stats-grid compact">
+  <div class="stat-card highlight">
+    <span>Portfolio Value</span>
+    <strong>${{ portfolio.total_value|floatformat:2 }}</strong>
+  </div>
+  <div class="stat-card">
+    <span>Cash</span>
+    <strong>${{ portfolio.current_cash|floatformat:2 }}</strong>
+  </div>
+  <div class="stat-card">
+    <span>Initial Cash</span>
+    <strong>${{ portfolio.initial_cash|floatformat:2 }}</strong>
+  </div>
+</div>
+
+<div class="content-grid two-col">
+  <section class="panel">
+    <div class="panel-header">
+      <h2>Positions</h2>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Stock</th>
+            <th>Quantity</th>
+            <th>Value</th>
+            <th>P&amp;L</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for position in positions %}
+          <tr>
+            <td>{{ position.stock.ticker }}</td>
+            <td>{{ position.quantity }}</td>
+            <td>${{ position.current_value|floatformat:2 }}</td>
+            <td class="{% if position.unrealized_pnl >= 0 %}positive{% else %}negative{% endif %}">
+              ${{ position.unrealized_pnl|floatformat:2 }}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="4" class="empty-row">No positions held.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-header">
+      <h2>Recent Trades</h2>
+    </div>
+    <div class="trade-list">
+      {% for trade in recent_trades %}
+      <div class="signal-item trade-item">
+        <div>
+          <strong>{{ trade.stock.ticker }}</strong>
+          <p>{{ trade.trade_type }} · {{ trade.status }}</p>
+        </div>
+        <span class="trade-quantity">{{ trade.quantity }}</span>
+      </div>
+      {% empty %}
+      <p class="empty-state">No trades have been recorded.</p>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+
+<section class="panel">
+  <div class="panel-header">
+    <h2>Performance</h2>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Total Value</th>
+          <th>Cash</th>
+          <th>Daily Return</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for metric in performance %}
+        <tr>
+          <td>{{ metric.date }}</td>
+          <td>${{ metric.total_value|floatformat:2 }}</td>
+          <td>${{ metric.cash_value|floatformat:2 }}</td>
+          <td class="{% if metric.daily_return >= 0 %}positive{% else %}negative{% endif %}">
+            {{ metric.daily_return|floatformat:4 }}%
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4" class="empty-row">No performance history available.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

@@ -10,6 +10,15 @@ from massive.exceptions import BadResponse
 
 logger = logging.getLogger(__name__)
 
+DEFAULT_MARKET_UNIVERSE = [
+    "AAPL", "MSFT", "NVDA", "AMZN", "META", "GOOGL", "GOOG", "BRK.B", "LLY", "V",
+    "AVGO", "TSM", "WMT", "COST", "PG", "UNH", "HD", "CRM", "MA", "JPM",
+    "XOM", "CVX", "LLRG", "ABBV", "AAPL", "AMD", "INTC", "QCOM", "TXN", "MS",
+    "NFLX", "SPY", "QQQ", "DIA", "IWM", "NKE", "PFE", "KO", "DIS", "CMCSA",
+    "CAT", "GE", "HON", "IBM", "UBER", "SHOP", "PLTR", "SNOW", "PYPL", "ADBE",
+    "ORCL", "CSCO", "CRM", "SAP", "BABA", "TGT", "C", "GS", "NEM", "SLB",
+]
+
 
 class MassiveAPIClient:
     def __init__(self, api_key: str = None, requests_per_minute: int = 5):
@@ -425,6 +434,15 @@ class MassiveAPIClient:
         except (ValueError, TypeError) as e:
             logger.error(f"Error getting price for {ticker} on {target_date}: {str(e)}")
             return None
+
+    def get_sp500_tickers(self) -> List[str]:
+        """Return the active ticker universe used for momentum ranking.
+
+        The Massive API does not expose a simple premium S&P list in this project, so we
+        use a stable market basket as the default universe and allow the strategy layer to
+        refresh values from the API when the key is present.
+        """
+        return list(dict.fromkeys(DEFAULT_MARKET_UNIVERSE))
 
 
 def get_massive_client() -> MassiveAPIClient:

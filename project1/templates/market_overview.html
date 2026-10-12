@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}Market Overview | Momentum Trader{% endblock %}
+{% block page_title %}Market Overview{% endblock %}
+
+{% block content %}
+<div class="page-actions" style="margin-bottom: 20px;">
+  <form method="post" action="{% url 'trading:momentum_rankings' %}">
+    {% csrf_token %}
+    <button type="submit" class="primary-button">Calculate Momentum</button>
+  </form>
+  <a href="{% url 'trading:momentum_rankings' %}" class="secondary-button">View Top 50</a>
+</div>
+
+<div class="content-grid two-col">
+  <section class="panel">
+    <div class="panel-header">
+      <h2>Stocks</h2>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Ticker</th>
+            <th>Name</th>
+            <th>Sector</th>
+            <th>Market Cap</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for stock in stocks %}
+          <tr>
+            <td>{{ stock.ticker }}</td>
+            <td>{{ stock.name }}</td>
+            <td>{{ stock.sector|default:'N/A' }}</td>
+            <td>{{ stock.market_cap|default:'N/A' }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="4" class="empty-row">No stock data available.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-header">
+      <h2>Signals</h2>
+    </div>
+    <div class="signal-list stacked">
+      {% for signal in recent_signals %}
+      <div class="signal-item">
+        <div>
+          <strong>{{ signal.stock.ticker }}</strong>
+          <p>{{ signal.reason|default:'No reason provided' }}</p>
+        </div>
+        <span class="signal-badge signal-{{ signal.signal_type|lower }}">{{ signal.signal_type }}</span>
+      </div>
+      {% empty %}
+      <p class="empty-state">No signals have been generated yet.</p>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}

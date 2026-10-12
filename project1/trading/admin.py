@@ -12,13 +12,13 @@ class StockAdmin(admin.ModelAdmin):
 class PriceDataAdmin(admin.ModelAdmin):
     list_display = ("stock","date","open_price","high","low","close","volume","adjusted_close","created_at")
     list_filter = ("date","stock")
-    search_fields = ("stock_ticker",)
+    search_fields = ("stock__ticker",)
     readonly_fields = ("created_at",)
     date_hierarchy = "date"
 
 
 @admin.register(MomentumScore)
-class MonmentumScoreAdmin(admin.ModelAdmin):
+class MomentumScoreAdmin(admin.ModelAdmin):
     list_display = (
         "stock",
         "calculation_date",
@@ -27,7 +27,7 @@ class MonmentumScoreAdmin(admin.ModelAdmin):
         "is_top_quintile"
     )
     list_filter = ("calculation_date","quintile","is_top_quintile")
-    search_fields = ("stock_ticker",)
+    search_fields = ("stock__ticker",)
     readonly_fields = ("created_at",)
     date_hierarchy = "calculation_date"
 
@@ -37,7 +37,7 @@ class MonmentumScoreAdmin(admin.ModelAdmin):
 class TradingSignalAdmin(admin.ModelAdmin):
     list_display = ("stock","signal_date","signal_type","is_executed","created_at")
     list_filter = ("signal_type","signal_date","is_executed")
-    search_fields = ("stock_ticker",)
+    search_fields = ("stock__ticker",)
     readonly_fields = ("created_at","executed_at")
     date_hierarchy = "signal_date"
 
@@ -53,6 +53,6 @@ class RebalanceEventAdmin(admin.ModelAdmin):
         "sell_signals_generated"
     )
     list_filter = ("execution_status","buy_signals_generated","sell_signals_generated")
-    search_fields = ("stock_ticker",)
+    search_fields = ("stock__ticker",)
     readonly_fields = ("created_at","completed_at")
     date_hierarchy = "date"

@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}Strategy | Momentum Trader{% endblock %}
+{% block page_title %}Strategy Dashboard{% endblock %}
+
+{% block content %}
+<div class="stats-grid">
+  <div class="stat-card">
+    <span>Buy Signals</span>
+    <strong>{{ signal_summary.buy }}</strong>
+  </div>
+  <div class="stat-card">
+    <span>Sell Signals</span>
+    <strong>{{ signal_summary.sell }}</strong>
+  </div>
+  <div class="stat-card">
+    <span>Hold Signals</span>
+    <strong>{{ signal_summary.hold }}</strong>
+  </div>
+  <div class="stat-card highlight">
+    <span>Recent Rebalances</span>
+    <strong>{{ recent_rebalances|length }}</strong>
+  </div>
+</div>
+
+<div class="content-grid two-col">
+  <section class="panel">
+    <div class="panel-header">
+      <h2>Latest Momentum Signals</h2>
+    </div>
+    <div class="signal-list">
+      {% for score in latest_scores %}
+      <div class="signal-item">
+        <div>
+          <strong><a href="{% url 'trading:stock_detail' score.stock.ticker %}" class="stock-link">{{ score.stock.ticker }}</a></strong>
+          <p>{{ score.calculation_date }} · Quintile {{ score.quintile|default:'N/A' }}</p>
+        </div>
+        <span class="signal-badge {% if score.is_top_quintile %}signal-buy{% else %}signal-hold{% endif %}">
+          {{ score.momentum_score|floatformat:6 }}
+        </span>
+      </div>
+      {% empty %}
+      <p class="empty-state">No momentum scores are available yet.</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-header">
+      <h2>Recent Rebalances</h2>
+    </div>
+    <div class="signal-list">
+      {% for rebalance in recent_rebalances %}
+      <div class="signal-item">
+        <div>
+          <strong>{{ rebalance.date }}</strong>
+          <p>{{ rebalance.execution_status }} · {{ rebalance.total_stocks_analyzed }} stocks analyzed</p>
+        </div>
+        <span class="signal-badge signal-hold">${{ rebalance.total_portfolio_value|default:'0'|floatformat:2 }}</span>
+      </div>
+      {% empty %}
+      <p class="empty-state">No rebalance history available.</p>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,380 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Portfolio | Momentum Trader{% endblock %}
+{% block page_title %}Create Portfolio{% endblock %}
+
+{% block content %}
+<section class="panel form-card wizard-panel">
+  <div class="panel-header">
+    <div>
+      <p class="eyebrow">Portfolio setup</p>
+      <h2>New Portfolio</h2>
+    </div>
+    <a href="{% url 'portfolio:portfolio_list' %}" class="text-link">Back to portfolios</a>
+  </div>
+
+  {% if error %}
+  <div class="form-error">{{ error }}</div>
+  {% endif %}
+
+  <form method="post" id="portfolioWizard">
+    {% csrf_token %}
+
+    <div class="wizard-progress" aria-label="Portfolio creation progress">
+      <div class="wizard-step-pill active" data-step-indicator="1">
+        <span class="wizard-number">1</span>
+        <span>Portfolio Details</span>
+      </div>
+      <div class="wizard-step-pill" data-step-indicator="2">
+        <span class="wizard-number">2</span>
+        <span>Connect Brokerage</span>
+      </div>
+      <div class="wizard-step-pill" data-step-indicator="3">
+        <span class="wizard-number">3</span>
+        <span>Review &amp; Create</span>
+      </div>
+    </div>
+
+    <div class="wizard-body">
+      <div class="wizard-main">
+        <section class="wizard-step active" data-step="1">
+          <div class="section-heading">
+            <h3>Portfolio Details</h3>
+            <p>Set the foundation for your strategy, risk profile, and capital allocation.</p>
+          </div>
+
+          <div class="form-grid">
+            <div class="field full-width">
+              <label for="name">Portfolio name</label>
+              <input id="name" name="name" type="text" value="{{ name|default:'' }}" placeholder="Example: Growth Momentum Fund" required />
+            </div>
+
+            <div class="field full-width">
+              <label for="description">Description</label>
+              <textarea id="description" name="description" rows="4" placeholder="Describe your investment strategy, risk profile, and goals...">{{ description|default:'' }}</textarea>
+            </div>
+
+          </div>
+        </section>
+
+        <section class="wizard-step" data-step="2">
+          <div class="section-heading">
+            <h3>Connect Brokerage</h3>
+            <p>Link your account through SnapTrade to enable live balances, positions, and order execution.</p>
+          </div>
+
+          <div class="form-grid">
+            <div class="field full-width">
+              <label for="brokerage">Select brokerage</label>
+              <select id="brokerage" name="brokerage">
+                <option value="alpaca" {% if brokerage != 'manual' %}selected{% endif %}>Alpaca via SnapTrade</option>
+                <option value="manual" {% if brokerage == 'manual' %}selected{% endif %}>Manual portfolio</option>
+              </select>
+            </div>
+
+            <div class="field full-width info-box">
+              <strong>Live trading via SnapTrade</strong>
+              <p>Connect a real Alpaca account to sync balances, positions, and execute orders securely. SnapTrade handles the brokerage connection and we never store your brokerage password.</p>
+            </div>
+
+            <div class="field full-width">
+              <label for="snaptrade_user_id">SnapTrade user ID</label>
+              <input id="snaptrade_user_id" name="snaptrade_user_id" type="text" value="{{ snaptrade_user_id|default:'' }}" placeholder="Optional: automatically generated after connection" />
+            </div>
+
+            <div class="field full-width">
+              <label for="snaptrade_account_id">SnapTrade account ID</label>
+              <input id="snaptrade_account_id" name="snaptrade_account_id" type="text" value="{{ snaptrade_account_id|default:'' }}" placeholder="Optional: connected brokerage account id" />
+            </div>
+
+            <div class="field full-width">
+              <label for="snaptrade_user_secret">SnapTrade user secret</label>
+              <input id="snaptrade_user_secret" name="snaptrade_user_secret" type="password" value="{{ snaptrade_user_secret|default:'' }}" placeholder="Optional: generated securely for this portfolio" />
+            </div>
+          </div>
+        </section>
+
+        <section class="wizard-step" data-step="3">
+          <div class="section-heading">
+            <h3>Review &amp; Create</h3>
+            <p>Confirm your portfolio basics and brokerage setup before creating the portfolio.</p>
+          </div>
+
+          <div class="review-grid">
+            <div class="review-block">
+              <span class="review-label">Portfolio Name</span>
+              <strong id="review-name">-</strong>
+            </div>
+            <div class="review-block">
+              <span class="review-label">Balance Source</span>
+              <strong id="review-cash">Paper trading account funding</strong>
+            </div>
+            <div class="review-block full-width">
+              <span class="review-label">Description</span>
+              <strong id="review-description">-</strong>
+            </div>
+            <div class="review-block full-width">
+              <span class="review-label">Brokerage</span>
+              <strong id="review-brokerage">-</strong>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <aside class="wizard-help">
+        <div class="help-card">
+          <h4>Helpful tips</h4>
+          <ul>
+            <li>Choose a descriptive name that reflects your strategy.</li>
+            <li>Connect a real brokerage account for live trading and sync.</li>
+            <li>Document risk tolerance and strategy goals clearly.</li>
+          </ul>
+        </div>
+
+        <div class="help-card">
+          <h4>Brokerage security</h4>
+          <ul>
+            <li>Live trading is powered by SnapTrade.</li>
+            <li>Your brokerage password is never stored by this app.</li>
+            <li>Permissions cover balances, positions, trade execution, and order updates.</li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+
+    <div class="button-row">
+      <button type="button" class="secondary-button hidden" id="prevStep">← Previous</button>
+      <div class="spacer"></div>
+      <button type="button" class="primary-button" id="nextStep">Next →</button>
+      <button type="submit" class="primary-button hidden" id="submitStep">Create portfolio</button>
+    </div>
+  </form>
+</section>
+
+<style>
+  .wizard-panel {
+    padding: 1.5rem;
+  }
+
+  .wizard-progress {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin: 1rem 0 1.5rem;
+  }
+
+  .wizard-step-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.8rem 1rem;
+    border: 1px solid #d6dce5;
+    border-radius: 12px;
+    background: #f7f9fc;
+    color: #52607a;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+
+  .wizard-step-pill.active {
+    background: #eaf3ff;
+    border-color: #94baf3;
+    color: #0e3a73;
+  }
+
+  .wizard-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.8rem;
+    height: 1.8rem;
+    border-radius: 50%;
+    background: rgba(14, 58, 115, 0.1);
+    font-size: 0.82rem;
+  }
+
+  .wizard-body {
+    display: grid;
+    grid-template-columns: minmax(0, 2.1fr) minmax(220px, 0.9fr);
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  .wizard-main {
+    min-width: 0;
+  }
+
+  .wizard-step {
+    display: none;
+  }
+
+  .wizard-step.active {
+    display: block;
+  }
+
+  .section-heading {
+    margin-bottom: 1rem;
+  }
+
+  .section-heading h3 {
+    margin: 0 0 0.3rem;
+    font-size: 1.45rem;
+  }
+
+  .section-heading p {
+    margin: 0;
+    color: #53657d;
+  }
+
+  .info-box {
+    padding: 1rem;
+    border: 1px solid #dfe9f6;
+    border-radius: 12px;
+    background: #f2f8ff;
+    color: #2a466b;
+  }
+
+  .info-box strong {
+    display: block;
+    margin-bottom: 0.35rem;
+  }
+
+  .info-box p {
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .wizard-help {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .help-card {
+    padding: 1rem 1.1rem;
+    border: 1px solid #e4e9f1;
+    border-radius: 12px;
+    background: #fafbff;
+  }
+
+  .help-card h4 {
+    margin: 0 0 0.75rem;
+    font-size: 1rem;
+  }
+
+  .help-card ul {
+    margin: 0;
+    padding-left: 1.1rem;
+    color: #51637a;
+    line-height: 1.7;
+  }
+
+  .review-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .review-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 1rem;
+    border: 1px solid #e4e9f1;
+    border-radius: 12px;
+    background: #fafbff;
+  }
+
+  .review-block.full-width {
+    grid-column: 1 / -1;
+  }
+
+  .review-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #6b7b90;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  @media (max-width: 900px) {
+    .wizard-progress,
+    .wizard-body,
+    .review-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  const wizardSteps = [...document.querySelectorAll('.wizard-step')];
+  const stepIndicators = [...document.querySelectorAll('[data-step-indicator]')];
+  const nextBtn = document.getElementById('nextStep');
+  const prevBtn = document.getElementById('prevStep');
+  const submitBtn = document.getElementById('submitStep');
+  let currentStep = 0;
+
+  function syncReview() {
+    const name = document.getElementById('name').value || '-';
+    const description = document.getElementById('description').value || '-';
+    const brokerage = document.getElementById('brokerage').value === 'alpaca' ? 'Alpaca via SnapTrade' : 'Manual portfolio';
+
+    document.getElementById('review-name').textContent = name;
+    document.getElementById('review-cash').textContent = 'Paper trading account balance';
+    document.getElementById('review-description').textContent = description;
+    document.getElementById('review-brokerage').textContent = brokerage;
+  }
+
+  function validateStep(stepIndex) {
+    if (stepIndex === 0) {
+      const name = document.getElementById('name').value.trim();
+      if (!name) {
+        alert('Portfolio name is required before continuing.');
+        return false;
+      }
+      return true;
+    }
+
+    return true;
+  }
+
+  function showStep(stepIndex) {
+    currentStep = stepIndex;
+
+    wizardSteps.forEach((step, index) => {
+      step.classList.toggle('active', index === stepIndex);
+    });
+
+    stepIndicators.forEach((pill, index) => {
+      pill.classList.toggle('active', index === stepIndex);
+    });
+
+    prevBtn.classList.toggle('hidden', stepIndex === 0);
+    nextBtn.classList.toggle('hidden', stepIndex === wizardSteps.length - 1);
+    submitBtn.classList.toggle('hidden', stepIndex !== wizardSteps.length - 1);
+
+    if (stepIndex === wizardSteps.length - 1) {
+      syncReview();
+    }
+  }
+
+  nextBtn.addEventListener('click', () => {
+    if (!validateStep(currentStep)) {
+      return;
+    }
+    showStep(Math.min(currentStep + 1, wizardSteps.length - 1));
+  });
+
+  prevBtn.addEventListener('click', () => {
+    showStep(Math.max(currentStep - 1, 0));
+  });
+
+  document.getElementById('brokerage').addEventListener('change', syncReview);
+  document.getElementById('name').addEventListener('input', syncReview);
+  document.getElementById('description').addEventListener('input', syncReview);
+
+  showStep(0);
+</script>
+{% endblock %}

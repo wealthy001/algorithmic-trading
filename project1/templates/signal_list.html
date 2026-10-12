@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Signals | Momentum Trader{% endblock %}
+{% block page_title %}Trading Signals{% endblock %}
+
+{% block content %}
+<section class="panel">
+  <div class="panel-header">
+    <h2>All Generated Signals</h2>
+    <a href="{% url 'trading:generate_signals' %}" class="primary-button">Generate signals</a>
+  </div>
+  <div class="signal-list">
+    {% for signal in signals %}
+    <div class="signal-item">
+      <div>
+        <strong><a href="{% url 'trading:stock_detail' signal.stock.ticker %}" class="stock-link">{{ signal.stock.ticker }}</a></strong>
+        <p>{{ signal.signal_date }} · {{ signal.reason|default:'No reason provided' }}</p>
+      </div>
+      <span class="signal-badge signal-{{ signal.signal_type|lower }}">{{ signal.signal_type }}</span>
+    </div>
+    {% empty %}
+    <p class="empty-state">No signals have been generated yet.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

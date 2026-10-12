@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard | Momentum Trader{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="stats-grid">
+  <div class="stat-card highlight">
+    <span>Total Portfolio Value</span>
+    <strong>${{ total_value|floatformat:2 }}</strong>
+  </div>
+  <div class="stat-card">
+    <span>Cash Available</span>
+    <strong>${{ total_cash|floatformat:2 }}</strong>
+  </div>
+  <div class="stat-card">
+    <span>Active Portfolios</span>
+    <strong>{{ portfolios.count }}</strong>
+  </div>
+  <div class="stat-card">
+    <span>Open Positions</span>
+    <strong>{{ active_positions.count }}</strong>
+  </div>
+</div>
+
+<div class="content-grid two-col">
+  <section class="panel">
+    <div class="panel-header">
+      <h2>Portfolios</h2>
+      <div class="page-actions">
+        <a href="{% url 'portfolio:portfolio_create' %}" class="primary-button">Create portfolio</a>
+        <a href="{% url 'portfolio:portfolio_list' %}" class="text-link">View all</a>
+      </div>
+    </div>
+    <div class="card-list">
+      {% for portfolio in portfolios %}
+      <a href="{% url 'portfolio:portfolio_detail' portfolio.pk %}" class="portfolio-card">
+        <div>
+          <p class="muted">{{ portfolio.name }}</p>
+          <h3>${{ portfolio.total_value|floatformat:2 }}</h3>
+        </div>
+        <span class="pill {% if portfolio.is_active %}success{% else %}muted{% endif %}">
+          {{ portfolio.is_active|yesno:'Active,Inactive' }}
+        </span>
+      </a>
+      {% empty %}
+      <p class="empty-state">No portfolios have been created yet.</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-header">
+      <h2>Recent Signals</h2>
+      <a href="{% url 'trading:signal_list' %}" class="text-link">View all</a>
+    </div>
+    <div class="signal-list">
+      {% for signal in recent_signals %}
+      <div class="signal-item">
+        <div>
+          <strong>{{ signal.stock.ticker }}</strong>
+          <p>{{ signal.signal_type }}</p>
+        </div>
+        <span class="signal-badge signal-{{ signal.signal_type|lower }}">{{ signal.signal_type }}</span>
+      </div>
+      {% empty %}
+      <p class="empty-state">No trading signals available.</p>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+
+<section class="panel">
+  <div class="panel-header">
+    <h2>Top Positions</h2>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Portfolio</th>
+          <th>Stock</th>
+          <th>Quantity</th>
+          <th>Value</th>
+          <th>P&amp;L</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for position in active_positions %}
+        <tr>
+          <td>{{ position.portfolio.name }}</td>
+          <td>{{ position.stock.ticker }}</td>
+          <td>{{ position.quantity }}</td>
+          <td>${{ position.current_value|floatformat:2 }}</td>
+          <td class="{% if position.unrealized_pnl >= 0 %}positive{% else %}negative{% endif %}">
+            ${{ position.unrealized_pnl|floatformat:2 }}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" class="empty-row">No positions found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

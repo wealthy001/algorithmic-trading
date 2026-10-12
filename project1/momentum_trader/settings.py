@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-sqc))7)f*!$wsyyw-o+jwm-$blao4bjfyl3qyi!3(x+vh)(9li
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver']
 
 
 # Application definition
@@ -57,7 +57,7 @@ ROOT_URLCONF = 'momentum_trader.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -118,6 +118,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [BASE_DIR / 'static']
 
 MASSIVE_API_KEY = config('MASSIVE_API_KEY', default='')
 SNAPTRADE_CLIENT_SECRET = config('SNAPTRADE_CLIENT_SECRET', default='')

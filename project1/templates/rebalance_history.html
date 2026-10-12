@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Rebalances | Momentum Trader{% endblock %}
+{% block page_title %}Rebalance History{% endblock %}
+
+{% block content %}
+<section class="panel">
+  <div class="panel-header">
+    <h2>Strategy Rebalances</h2>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Status</th>
+          <th>Stocks Analyzed</th>
+          <th>Buy Signals</th>
+          <th>Sell Signals</th>
+          <th>Portfolio Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for rebalance in rebalances %}
+        <tr>
+          <td>{{ rebalance.date }}</td>
+          <td>{{ rebalance.execution_status }}</td>
+          <td>{{ rebalance.total_stocks_analyzed }}</td>
+          <td>{{ rebalance.buy_signals_generated }}</td>
+          <td>{{ rebalance.sell_signals_generated }}</td>
+          <td>${{ rebalance.total_portfolio_value|default:'0'|floatformat:2 }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" class="empty-row">No rebalance events yet.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

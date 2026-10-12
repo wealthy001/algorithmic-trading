@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}Portfolios | Momentum Trader{% endblock %}
+{% block page_title %}Portfolios{% endblock %}
+
+{% block content %}
+<section class="panel">
+  <div class="panel-header">
+    <h2>Portfolio Overview</h2>
+    <a href="{% url 'portfolio:portfolio_create' %}" class="primary-button">Create portfolio</a>
+  </div>
+  <div class="card-grid">
+    {% for portfolio in portfolios %}
+    <div class="portfolio-summary-card">
+      <div class="card-topline">
+        <h3>{{ portfolio.name }}</h3>
+        <span class="pill {% if portfolio.is_active %}success{% else %}muted{% endif %}">
+          {{ portfolio.is_active|yesno:'Active,Inactive' }}
+        </span>
+      </div>
+      <p>{{ portfolio.description|default:'No description provided.' }}</p>
+      <ul>
+        <li><strong>Total Value:</strong> ${{ portfolio.total_value|floatformat:2 }}</li>
+        <li><strong>Cash:</strong> ${{ portfolio.current_cash|floatformat:2 }}</li>
+        <li><strong>Created:</strong> {{ portfolio.created_at|date:'M d, Y' }}</li>
+      </ul>
+      <a href="{% url 'portfolio:portfolio_detail' portfolio.pk %}" class="primary-button">Open portfolio</a>
+    </div>
+    {% empty %}
+    <p class="empty-state">No portfolios are available.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

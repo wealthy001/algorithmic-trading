@@ -4,13 +4,13 @@ from portfolio.models import Portfolio, Position, Trade, PerformanceMetric
 @admin.register(Portfolio)
 class PortfolioAdmin(admin.ModelAdmin):
     list_display = ("name", "initial_cash", "current_cash", "total_value", "is_active", "created_at")
-    list_filter = ("is_active","created_at")
+    list_filter = ("is_active", "created_at")
     search_fields = ("name", "description")
-    readonly_fields = ("created_at", "Updated_at")
+    readonly_fields = ("created_at", "updated_at")
 
 @admin.register(Position)
 class PositionAdmin(admin.ModelAdmin):
-    list_display = ("portfolio", "stock", "quantity", "average_cost", "current_price", "current_value", "unrealised_pnl", "unrealised_pnl_percent", "last_updated")
+    list_display = ("portfolio", "stock", "quantity", "average_cost", "current_price", "current_value", "unrealized_pnl", "unrealized_pnl_percent", "last_updated")
     list_filter = ("portfolio", "last_updated")
     search_fields = ("portfolio__name", "stock__ticker")
     readonly_fields = ("last_updated", "created_at")
@@ -29,4 +29,4 @@ class PerformanceMetricAdmin(admin.ModelAdmin):
     list_filter = ("portfolio", "date")
     search_fields = ("portfolio__name",)
     readonly_fields = ("created_at",)
-    date_hierachy = "created_at"
+    date_hierarchy = "created_at"
